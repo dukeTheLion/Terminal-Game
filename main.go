@@ -16,6 +16,16 @@ var clear map[string]func()
 const lines = 15
 const columns = 40
 
+type frames struct {
+	text []string
+}
+
+type canvas struct {
+	x    int
+	y    int
+	text []string
+}
+
 func init() {
 	clear = make(map[string]func()) //Initialize it
 	clear["linux"] = func() {
@@ -94,28 +104,28 @@ func boxDrawer(text []string, x int, y int) {
 
 }
 
-func drawer(text []string) {
+func drawer(cv []canvas) {
 	CallClear()
-	boxDrawer(text, columns, lines)
-	boxDrawer(text, columns, 5)
+	for _, i2 := range cv {
+		boxDrawer(i2.text, i2.x, i2.y)
+	}
 }
 
 func loop() {
-
 	dat, err := ioutil.ReadFile("sample.txt")
 	check(err)
 
-	var text = strings.Split(string(dat), "\\\n")
-	var output = make([]string, lines-2)
+	var frame = frames{text: strings.Split(string(dat), "\\\n")}
+	var output = canvas{x: columns, y: lines, text: make([]string, lines-2)}
 
 	for {
 
-		for _, i2 := range text {
-			output = strings.Split(i2, "\n")
+		for _, i2 := range frame.text {
+			output.text = strings.Split(i2, "\n")
 			time.Sleep(100 * time.Millisecond)
 
 			CallClear()
-			drawer(output)
+			drawer([]canvas{output})
 		}
 
 	}
